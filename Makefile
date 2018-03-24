@@ -1,13 +1,11 @@
 
-
 SHELL := /bin/bash
 
-STACKNAME := wordpress
-
-WPCONTAINER=$(shell docker inspect $$(docker stack ps $(STACKNAME) --filter "name=$(STACKNAME)_wordpress"  --filter "desired-state=Running" --format {{.ID}}) --format {{.Status.ContainerStatus.ContainerID}})
+include config.makefile
 
 
-WORDPRESS_DB_PASSWORD := aceasfsd
+
+WPCONTAINER=$(shell docker inspect $$(docker stack ps $(STACK_NAME) --filter "name=$(STACK_NAME)_wordpress"  --filter "desired-state=Running" --format {{.ID}}) --format {{.Status.ContainerStatus.ContainerID}})
 
 CLI := core version
 cli:
@@ -18,4 +16,8 @@ enter:
 	docker exec -it $(WPCONTAINER) /bin/bash 
 
 deploy:
-	docker stack deploy --compose-file wordpress.yml $(STACKNAME) 
+	docker stack deploy --compose-file wordpress.yml $(STACK_NAME) 
+
+
+swarm-init:
+	docker swarm init --advertise-addr 127.0.0.1
