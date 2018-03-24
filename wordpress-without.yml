@@ -1,0 +1,21 @@
+version: '3.1'
+
+services:
+
+  wordpress:
+    image: wordpress
+    restart: always
+    ports:
+      - 80:80
+    environment:
+      WORDPRESS_DB_PASSWORD: ${SECRET}
+    volumes:
+      - ./html:/var/www/html
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${SECRET}
+    volumes:
+      - ./mysql:/var/lib/mysql
