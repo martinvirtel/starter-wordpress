@@ -58,6 +58,9 @@ cli:
 	docker run -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
 
 
+install-local:
+	$(MAKE) cli CLI="core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=admin --admin_email=test@random.domain --title=test --skip-email"
+
 test:
 	echo $(WP_CONTAINER)
 
