@@ -9,7 +9,7 @@ include config.makefile
 
 # WP_CONTAINER := $(shell docker inspect $(WP_SERVICE) --format '{{.ID}}')
 
-WP_SERVICE := $(shell docker stack ps $(STACK_NAME) --filter "name=vmonitor_wordpress" --filter "desired-state=Running" --format '{{.ID}}' 2>/dev/null || echo '')
+WP_SERVICE := $(shell docker stack ps $(STACK_NAME) --filter "name=$(STACK_NAME)_wordpress" --filter "desired-state=Running" --format '{{.ID}}' 2>/dev/null || echo '')
 WP_CONTAINER := $(shell docker inspect $(WP_SERVICE) --format '{{.Status.ContainerStatus.ContainerID}}' 2>/dev/null || echo '')
 
 DIRS := ./mysql  ./html
@@ -59,7 +59,7 @@ cli:
 
 
 install-local:
-	$(MAKE) cli CLI="core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=admin --admin_email=test@random.domain --title=test --skip-email"
+	$(MAKE) cli CLI='core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=admin --admin_email=test@random.domain --title=test --skip-email'
 
 test:
 	echo $(WP_CONTAINER)
