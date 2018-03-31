@@ -96,6 +96,6 @@ duplicity:
 	wernight/duplicity $(DUP)
 
 run-backup: backup-db
-	$(MAKE) duplicity DUP="duplicity --s3-use-new-style --s3-european-buckets --full-if-older-than 1M --no-encryption /var/www s3://s3.eu-central-1.amazonaws.com/backup-virtel/opengov.cat"
-	$(MAKE) duplicity DUP="duplicity --s3-use-new-style --s3-european-buckets remove-older-than 2M --force s3://s3.eu-central-1.amazonaws.com/backup-virtel/opengov.cat"
+	$(MAKE) duplicity DUP="duplicity --s3-use-new-style --s3-european-buckets --full-if-older-than 1M --no-encryption /var/www $(AWS_BACKUP_BUCKET)"
+	$(MAKE) duplicity DUP="duplicity --s3-use-new-style --s3-european-buckets remove-older-than 2M --force $(AWS_BACKUP_BUCKET)"
 	
