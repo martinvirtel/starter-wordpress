@@ -82,7 +82,8 @@ backup-db:
 		--network container:$(WP_CONTAINER) wordpress:cli-php7.1 db export /tmp/sql/dump.sql
 
 install-local:
-	$(MAKE) cli CLI='core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=admin --admin_email=test@random.domain --title=test --skip-email'
+	ADMIN_PASSWORD=$$(head /dev/urandom | md5sum | sed 's/  -//') ;\
+	$(MAKE) cli CLI="core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=$${ADMIN_PASSWORD} --admin_email=test@random.domain --title=test --skip-email"
 
 test-container:
 	@echo wordpress=$(WP_CONTAINER) mysql=$(MYSQL_CONTAINER)
@@ -125,10 +126,14 @@ enable-site.conf: site.conf
 		echo linking $(CONFFILE) to $$(pwd)/site.conf ;\
 		sudo ln -s $$(pwd)/site.conf $(CONFFILE) ;\
 	fi  ;\
-	sudo service nginx restart
+	echo please restart nginx to make changes take effect
 
 
 disable-site.conf:
 	@echo removing $(CONFFILE) ;\
-	sudo rm $(CONFFILE)
-	
+	sudo rm $(CONFFILE) ;\
+	echo please restart nginx to make changes take effect
+
+set-cname:
+	$(MAKE) cli CLI="option set home http://$(WORDPRESS_CNAME)"	
+	$(MAKE) cli CLI="option set siteurl http://$(WORDPRESS_CNAME)"	
