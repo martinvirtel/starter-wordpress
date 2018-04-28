@@ -3,6 +3,7 @@ STACK_NAME := opengov
 
 MYSQL_ROOT_PASSWORD := 0fb7cef4b333b067c27558546088d03a
 WORDPRESS_PORT	    := 80
+WORDPRESS_CNAME     := entitats.newsradar.org
 
 
 

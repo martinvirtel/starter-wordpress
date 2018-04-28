@@ -4,5 +4,7 @@ mysql/
 duplicity-cache/ 
 sql/
 backup.log
+log/
+site.conf
 
 

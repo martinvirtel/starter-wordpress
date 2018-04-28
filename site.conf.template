@@ -1,0 +1,52 @@
+# Template file - filled out by envsubst - see Makefile target site.conf
+#
+
+server { 
+  listen 80;
+
+  server_name ${WORDPRESS_CNAME};
+
+  access_log ${CWD}/log/${WORDPRESS_CNAME}.access.log; 
+  error_log ${CWD}/log/${WORDPRESS_CNAME}.error.log;
+
+  root ${CWD}/html;
+
+  
+   # rewrite /wp-admin$ $scheme://$host$uri/ permanent;
+
+
+   # deny all apache .htaccess or .htpasswd files
+        location ~ /\.ht
+        {
+            deny all;
+        }
+  
+   # Deny access to hidden files
+        location ~ /\. {
+            deny all;
+            access_log off;
+            log_not_found off;
+        }
+
+   # Do not allow access to files giving away your WordPress version
+        location ~ /(\.|wp-config.php|readme.html|licence.txt) {
+            return 404;
+        }
+
+   index index.html;
+   location / {
+		proxy_pass http://localhost:${WORDPRESS_PORT};
+ 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    		proxy_set_header X-Real-IP $remote_addr;
+    		proxy_set_header Host $http_host;
+    		proxy_http_version 1.1;
+    		proxy_redirect off;
+    		proxy_buffering off;
+    		proxy_set_header Upgrade $http_upgrade;
+    		proxy_set_header Connection "upgrade";
+    		proxy_read_timeout 86400;
+
+   }
+
+} 
+
