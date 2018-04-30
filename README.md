@@ -26,7 +26,13 @@ WORDPRESS_CNAME := newsite.mydomain.com
 
 ```
 
-Then run `make deploy`.
+Then run `make deploy install-local`. Your wordpress will be available at `http://localhost:8090/` if `8090` is the port
+number you configured in `config.makefile`. The user name is `admin`. The password is set to a random string that is visible
+in the terminal. You can create additional users via wp-cli like so:
+
+```
+ make cli CLI="user create martin martin.virtel@gmail.com --role=administrator"
+```
 
 
 ## Makefile options
