@@ -6,6 +6,6 @@ WORDPRESS_PORT	    := 8090
 
 
 
-SWARM_ADVERTISE_IP  := $(shell uname -a | grep aws >/dev/null && curl http://169.254.169.254/latest/meta-data/local-ipv4)
+SWARM_ADVERTISE_IP  := $(shell uname -a | grep aws >/dev/null && curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
 
