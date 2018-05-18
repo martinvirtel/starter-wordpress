@@ -49,6 +49,10 @@ inside `config.makefile`. You can find out the network name used by the first wo
 
 Also, the `MYSQL_ROOT_PASSWORD` inside the `config.makefile` has to be copied from the original stack that will provide the mysql service.
 
+*SECURITY NOTICE* The shared mysql root password  means that the wordpress services are not completely isolated. 
+A malicious user with administrator access to one wordpress website has enough rights to read and delete content 
+on all the other wordpress services running on the same mysql service.
+
 
 # Credentials are used for s3 backup
 
