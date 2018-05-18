@@ -16,11 +16,7 @@ services:
       - ./html:/var/www/html
       - ./php/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     networks:
-      - wordpress
+      - ${MYSQL_NETWORK}
 
-# STACK_NAME := vmonitor
-
-# MYSQL_ROOT_PASSWORD := 0fb7cef4b333b067c27558546088d03a
-# WORDPRESS_PORT	    := 80 
 
 

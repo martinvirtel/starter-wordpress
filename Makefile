@@ -65,6 +65,13 @@ deploy: dirs
 	MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
 	docker stack deploy --compose-file wordpress.yml $(STACK_NAME) 
 
+deploy-shared: dirs 
+	WORDPRESS_PORT=$(WORDPRESS_PORT) \
+	MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
+	MYSQL_NETWORK=$(MYSQL_NETWORK) \
+    WORDPRESS_DB_NAME: ${STACK_NAME} \
+	docker stack deploy --compose-file wordpress.yml $(STACK_NAME) 
+
 ST = ps
 stack:  
 	@echo ST=$(ST) - docker stack $(ST) $(STACK_NAME) ;\
