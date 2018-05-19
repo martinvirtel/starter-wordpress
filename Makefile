@@ -87,9 +87,10 @@ swarm-init:
 
 
 CLI := core version
+# User 33 = www-data https://github.com/docker-library/wordpress/issues/256
 cli:
 	@echo wp CLI=$(CLI) ;\
-	docker run -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
+	docker run -u 33 -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
 
 backup-db:
 	docker run -it --rm --volumes-from $(WP_CONTAINER) \
@@ -149,6 +150,9 @@ disable-site.conf:
 	sudo rm $(CONFFILE) ;\
 	echo please restart nginx to make changes take effect
 
+
+CNAME = "http://$(WORDPRESS_CNAME):$(WORDPRESS_PORT)"
 set-cname:
-	$(MAKE) cli CLI="option set home http://$(WORDPRESS_CNAME)"	
-	$(MAKE) cli CLI="option set siteurl http://$(WORDPRESS_CNAME)"	
+	echo CNAME=$(CNAME) ;\
+	$(MAKE) cli CLI="option set home $(CNAME) "	
+	$(MAKE) cli CLI="option set siteurl $(CNAME)"
