@@ -141,3 +141,6 @@ disable-site.conf:
 set-cname:
 	$(MAKE) cli CLI="option set home http://$(WORDPRESS_CNAME)"	
 	$(MAKE) cli CLI="option set siteurl http://$(WORDPRESS_CNAME)"	
+
+test-vars:
+	echo WP_SERVICE=$(WP_SERVICE) WP_CONTAINER=$(WP_CONTAINER)
