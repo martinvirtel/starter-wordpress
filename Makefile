@@ -61,9 +61,20 @@ log:
 	docker logs $(LOG) $(WP_CONTAINER)
 
 deploy: dirs 
-	WORDPRESS_PORT=$(WORDPRESS_PORT) \
-	MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
-	docker stack deploy --compose-file wordpress.yml $(STACK_NAME) 
+	{ \
+	if [ "$(MYSQL_NETWORK)" == "" ] ; then \
+		WORDPRESS_PORT=$(WORDPRESS_PORT) \
+		MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
+		docker stack deploy --compose-file wordpress.yml $(STACK_NAME) ;\
+	else \
+		WORDPRESS_PORT=$(WORDPRESS_PORT) \
+		MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
+		MYSQL_NETWORK=$(MYSQL_NETWORK) \
+		WORDPRESS_DB_NAME=${STACK_NAME} \
+		docker stack deploy --compose-file wordpress-with-external-db.yml $(STACK_NAME) ;\
+	fi ;\
+	}
+
 
 ST = ps
 stack:  
@@ -76,9 +87,10 @@ swarm-init:
 
 
 CLI := core version
+# User 33 = www-data https://github.com/docker-library/wordpress/issues/256
 cli:
 	@echo wp CLI=$(CLI) ;\
-	docker run -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
+	docker run -u 33 -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
 
 backup-db:
 	docker run -it --rm --volumes-from $(WP_CONTAINER) \
@@ -138,9 +150,11 @@ disable-site.conf:
 	sudo rm $(CONFFILE) ;\
 	echo please restart nginx to make changes take effect
 
+
+CNAME = "http://$(WORDPRESS_CNAME):$(WORDPRESS_PORT)"
 set-cname:
-	$(MAKE) cli CLI="option set home http://$(WORDPRESS_CNAME)"	
-	$(MAKE) cli CLI="option set siteurl http://$(WORDPRESS_CNAME)"	
+	$(MAKE) cli CLI="option set home http://$(CNAME)"	
+	$(MAKE) cli CLI="option set siteurl http://$(CNAME)"	
 
 test-vars:
 	echo WP_SERVICE=$(WP_SERVICE) WP_CONTAINER=$(WP_CONTAINER)
