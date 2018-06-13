@@ -99,7 +99,7 @@ backup-db:
 
 install-local:
 	ADMIN_PASSWORD=$$(head /dev/urandom | md5sum | sed 's/  -//') ;\
-	$(MAKE) cli CLI="core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=$${ADMIN_PASSWORD} --admin_email=test@random.domain --title=test --skip-email"
+	$(MAKE) cli CLI="core install --url=http://$(WORDPRESS_CNAME):$(WORDPRESS_PORT) --admin_user=admin --admin_password=$${ADMIN_PASSWORD} --admin_email=test@random.domain --title=$(WORDPRESS_CNAME) --skip-email"
 
 test-container:
 	@echo wordpress=$(WP_CONTAINER) mysql=$(MYSQL_CONTAINER)
