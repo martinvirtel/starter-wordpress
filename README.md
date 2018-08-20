@@ -100,4 +100,20 @@ in the terminal. You can create additional users via wp-cli like so:
 
 
 
+## How-To: extract a Duplicator-Pro Package
+
+   
+  1. PHP
+     cd html; sudo -u www-data unzip (zip-archive-name)
+
+  2. DB
+     make cli CLI="db drop"
+     make cli CLI="db create"
+     make cli CLI='db import /var/www/'$(find html/dup-installer -name '*sql')
+     make set-cname
+     # Memcachey remove
+     sudo rm html/wp-content/object-cache.php html/wp-content/object-cache-memcache.php html/wp-content/object-cache-memcached.php
+     # dup-installer remove
+     sudo rm -rf html/dup-installer html/installer.php html/installer-backup.php html/installer-bootlog.txt html/dpro-importinstaller.php html/dup-wp-config-arc__*.txt 
+     make cli CLI='plugin deactivate wp-ses'
 
