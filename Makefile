@@ -89,7 +89,7 @@ swarm-init:
 CLI := core version
 # User 33 = www-data https://github.com/docker-library/wordpress/issues/256
 cli:
-	@echo wp CLI=$(CLI) ;\
+	@echo "wp CLI=$(CLI)" >&2 ;\
 	docker run -u 33 -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
 
 backup-db:
