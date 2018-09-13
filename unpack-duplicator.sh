@@ -25,7 +25,7 @@ do_cleanup () {
      # dup-installer remove
      sudo rm -rf html/dup-installer html/installer.php html/installer-backup.php html/installer-bootlog.txt html/dpro-importinstaller.php html/dup-wp-config-arc__*.txt
      make cli CLI='plugin deactivate wp-ses'
-
+     make cli CLI='plugin deactivate duplicator-pro'
 }
 
 make_visible () {
