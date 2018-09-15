@@ -151,7 +151,7 @@ disable-site.conf:
 	echo please restart nginx to make changes take effect
 
 
-CNAME = "http://$(WORDPRESS_CNAME):$(WORDPRESS_PORT)"
+CNAME = "http://$(WORDPRESS_CNAME)"
 set-cname:
 	$(MAKE) cli CLI="option set home $(CNAME)"	
 	$(MAKE) cli CLI="option set siteurl $(CNAME)"	
