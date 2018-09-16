@@ -90,6 +90,10 @@ CLI := core version
 # User 33 = www-data https://github.com/docker-library/wordpress/issues/256
 cli:
 	@echo "wp CLI=$(CLI)" >&2 ;\
+	docker run -u 33 --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
+
+cli-term:
+	@echo "wp CLI=$(CLI)" >&2 ;\
 	docker run -u 33 -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
 
 backup-db:
@@ -181,12 +185,18 @@ disable-site-ssl.conf:
 
 
 CNAME = "http://$(WORDPRESS_CNAME)"
+SSLCNAME = "https://$(WORDPRESS_CNAME)"
+
 set-cname:
+ifeq ($(CERT_DIRECTORY),)
 	$(MAKE) cli CLI="option set home $(CNAME)"	
 	$(MAKE) cli CLI="option set siteurl $(CNAME)"	
+else
+	$(MAKE) cli CLI="option set home $(SSLCNAME)"	
+	$(MAKE) cli CLI="option set siteurl $(SSLCNAME)"	
+endif
 
 
-SSLCNAME = "https://$(WORDPRESS_CNAME)"
 set-cname-ssl:
 	$(MAKE) cli CLI="option set home $(SSLCNAME)"	
 	$(MAKE) cli CLI="option set siteurl $(SSLCNAME)"	
