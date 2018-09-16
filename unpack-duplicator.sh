@@ -12,7 +12,7 @@ unpack_files () {
 
 
 install_db () {
-     make cli CLI="db drop" &&\
+     make cli CLI="db drop --yes" &&\
      make cli CLI="db create" &&\
      make cli CLI='db import /var/www/'$(find html/dup-installer -name '*sql') &&\
      make set-cname
