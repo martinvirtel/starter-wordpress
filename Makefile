@@ -191,5 +191,18 @@ set-cname-ssl:
 	$(MAKE) cli CLI="option set home $(SSLCNAME)"	
 	$(MAKE) cli CLI="option set siteurl $(SSLCNAME)"	
 
+
+config-nginx:
+ifeq ($(CERT_DIRECTORY),)
+	$(MAKE) enable-site.conf
+	$(MAKE) set-cname
+else
+	$(MAKE)	enable-site-ssl.conf
+	$(MAKE) set-cname-ssl
+endif
+
+
+
+
 test-vars:
 	echo WP_SERVICE=$(WP_SERVICE) WP_CONTAINER=$(WP_CONTAINER)
