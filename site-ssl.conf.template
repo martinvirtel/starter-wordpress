@@ -1,0 +1,76 @@
+# Template file - filled out by envsubst - see Makefile target site.conf
+#
+
+server { 
+  listen 80;
+
+  server_name ${WORDPRESS_CNAME};
+
+  access_log ${CWD}/log/${WORDPRESS_CNAME}.access.log; 
+  error_log ${CWD}/log/${WORDPRESS_CNAME}.error.log;
+
+  location / {
+                return 301 https://${SERVER_NAME}$request_uri;
+  } 
+
+}
+
+server { 
+  listen 443 ssl http2;
+
+  server_name ${WORDPRESS_CNAME};
+
+  access_log ${CWD}/log/${WORDPRESS_CNAME}.access.log; 
+  error_log ${CWD}/log/${WORDPRESS_CNAME}.error.log;
+
+  root ${CWD}/html;
+
+  ssl_certificate ${CERT_DIRECTORY}/fullchain.pem;
+  ssl_certificate_key ${CERT_DIRECTORY}/privkey.pem;
+  ssl_trusted_certificate ${CERT_DIRECTORY}/fullchain.pem;
+  include /etc/nginx/snippets/ssl.conf;
+
+
+
+  
+   # rewrite /wp-admin$ $scheme://$host$uri/ permanent;
+
+
+   # deny all apache .htaccess or .htpasswd files
+        location ~ /\.ht
+        {
+            deny all;
+        }
+  
+   # Deny access to hidden files
+        location ~ /\. {
+            deny all;
+            access_log off;
+            log_not_found off;
+        }
+
+   # Do not allow access to files giving away your WordPress version
+        location ~ /(\.|wp-config.php|readme.html|licence.txt) {
+            return 404;
+        }
+
+   index index.html;
+   location / {
+		proxy_pass http://localhost:${WORDPRESS_PORT};
+ 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    		proxy_set_header X-Real-IP $remote_addr;
+    		proxy_set_header Host $http_host;
+		proxy_set_header X-Forwarded-Proto $scheme;
+    		proxy_http_version 1.1;
+    		proxy_redirect off;
+    		proxy_buffering off;
+    		proxy_set_header Upgrade $http_upgrade;
+    		proxy_set_header Connection "upgrade";
+    		proxy_read_timeout 86400;
+   		add_header X-Frame-Options "allow_from dpa-newslab.github.io";
+		add_header Content-Security-Policy  "frame-ancestors dpa-newslab.github.io";
+
+   }
+
+} 
+
