@@ -6,5 +6,7 @@ sql/
 backup.log
 log/
 site.conf
+site-ssl.conf
+.aws-credentials
 
 

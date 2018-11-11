@@ -12,7 +12,7 @@ A docker installation in swarm mode. Try `make swarm init` to create a mini-swar
 
 ## Starting with a fresh wordpress
 
-Please copy `config.makefile-example` to `config.makefile` and edit it until it suits your needs. 
+Please clone this repo, then copy `config.makefile-example` to `config.makefile` and edit it until it suits your needs. 
 
 The values for STACK_NAME and WORDPRESS_PORT need to be unique for your docker swarm. WORDPRESS_CNAME should be the DNS name or IP where your wordpress will be available.
 
@@ -33,6 +33,13 @@ in the terminal. You can create additional users via wp-cli like so:
 ```
  make cli CLI="user create martin martin.virtel@gmail.com --role=administrator"
 ```
+
+## Using custom PHP exensions
+
+Please see the subdirectory `wordpress-apache-zip/` for an example of how to do build a docker image with custom PHP extension.
+
+Then, use this image instead insinde the `wordpress.yml` file.
+
 
 ## Adding a second wordpress
 
