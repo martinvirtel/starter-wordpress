@@ -13,9 +13,9 @@ export LOG_ERROR_FILE_PATH="/tmp/${myname}.error.log"
 #
 #  ToDo: 
 #        - diff --recursive to see which files changed
-#        - Cleanup old static zips
+#        (Done) - Cleanup old static zips
 #        - integrate with logrotate
-# 	 - versioning
+# 	 - versioning / URL Obfuscation 
 
 
 # wget https://raw.githubusercontent.com/reduardo7/bash-service-manager/master/services.sh
