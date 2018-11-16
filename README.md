@@ -1,3 +1,19 @@
+# https://stories-beta.dpa-prototype.de
+
+This is wordpress instance derived from https://github.com/martinvirtel/starter-wordpress. It is used as an editor, to generate HTML for
+dpa-stories using the plugin [Simply Static](https://wordpress.org/plugins/simply-static/). 
+
+The generated HTML is written to `https://s3.eu-central-1.amazonaws.com/dpa-newslab-prototype-webspace/dpa-stories/beta/` after being generated
+by the `Simply Static` plugin. This service is contained in`./upload-service.sh`
+
+
+Backups are at https://s3.console.aws.amazon.com/s3/buckets/dpa-newslab-datastore/backup/stories-beta.dpa-prototype.de/. `backup.sh` is run by 
+a daily cronjob. 
+
+
+
+-----
+
 
 # Run Wordpress with Docker Stack
 
