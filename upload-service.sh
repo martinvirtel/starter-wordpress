@@ -47,7 +47,8 @@ run-service() {
 	    # find $SOURCEDIR -mtime +10
 	    # find html/wp-content/plugins/simply-static/static-files | sort -r 
 	    echo Keeping the last 40 versions, removing the rest
-	    rm -v $(find $SOURCEDIR | sort -r | sed 1,40d)
+	    rm -v $(find $SOURCEDIR -type f | sort -r | sed 1,40d)
+	    rm $RUNNING_FILE
 	else 
 	    echo $RUNNING_FILE already present - skipping
 	fi
@@ -65,7 +66,7 @@ after-finish() {
   local action="$1" # Action
   local serviceExitCode=$2 # Service exit code
 
-  # echo "* Finish with $action. Exit code: $serviceExitCode"
+  echo "* Finish with $action. Exit code: $serviceExitCode"
 }
 
 action="$1"

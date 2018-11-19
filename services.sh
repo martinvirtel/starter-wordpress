@@ -112,16 +112,16 @@
     for p in $(cat "$PID_FILE_PATH"); do
       if kill -0 $p >/dev/null 2>&1
         then
-          kill $p
+          pkill -P $p
           sleep 2
           if kill -0 $p >/dev/null 2>&1
             then
-              kill -9 $p
+              pkill -9 -P $p
               sleep 2
               if kill -0 $p >/dev/null 2>&1
                 then
                   @e "Exec: sudo kill -9 $p"
-                  sudo kill -9 $p
+                  sudo pkill -9 -P $p
                   sleep 2
                 fi
             fi
