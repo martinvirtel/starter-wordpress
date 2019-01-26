@@ -8,6 +8,10 @@ server {
 
   access_log ${CWD}/log/${WORDPRESS_CNAME}.access.log; 
   error_log ${CWD}/log/${WORDPRESS_CNAME}.error.log;
+  
+  client_max_body_size 100m;
+  client_body_buffer_size 20m;
+
 
   location / {
                 return 301 https://${SERVER_NAME}$request_uri;
@@ -30,6 +34,8 @@ server {
   ssl_trusted_certificate ${CERT_DIRECTORY}/fullchain.pem;
   include /etc/nginx/snippets/ssl.conf;
 
+  client_max_body_size 100m;
+  client_body_buffer_size 20m;
 
 
   
@@ -67,8 +73,12 @@ server {
     		proxy_set_header Upgrade $http_upgrade;
     		proxy_set_header Connection "upgrade";
     		proxy_read_timeout 86400;
-   		add_header X-Frame-Options "allow_from dpa-newslab.github.io";
-		add_header Content-Security-Policy  "frame-ancestors dpa-newslab.github.io";
+   		# add_header X-Frame-Options "allow_from ${WORDPRESS_CNAME}";
+   		add_header X-Frame-Options "ALLOWALL";
+		# add_header Content-Security-Policy  "frame-ancestors ${WORDPRESS_CNAME}";
+		add_header Content-Security-Policy  "default-src *  data: blob: 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * data: blob: 'unsafe-inline'; font-src * data: blob: 'unsafe-inline';";
+		# https://stackoverflow.com/questions/35978863/allow-all-content-security-policy
+
 
    }
 

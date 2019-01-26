@@ -60,7 +60,7 @@
 
     if kill -0 $p >/dev/null 2>&1
       then
-        @e "Serive $serviceName is runnig with PID $p"
+        @e "Service $serviceName is runnig with PID $p"
         return 0
       else
         @e "Service $serviceName is not running (process PID $p not exists)"
