@@ -27,6 +27,16 @@ TIME_FORMAT='%F %H:%M'
 OUTPUT_FORMAT='%T Event(s): %e fired for file: %w. Refreshing.'
 RUNNING_FILE=/tmp/$0.$$.running
 
+process_files() {
+   echo overwriting index file 
+   printf "Updated $(date)\n"  > index.html
+   echo removing feeds
+   rm -rf feed/* 
+   echo rewriting absolute links
+   sed -i.original 's_"/wp-content/_"/dpa-newslab-prototype-webspace/dpa-stories/beta/wp-content/_g' $(find . -type f | egrep '(js|html|css)$')
+
+}
+
 run-service() {
   local action="$1" # Action
 
@@ -38,10 +48,7 @@ run-service() {
 	    cd $STATICDIR
 	    echo "Unpacking $LATEST"
 	    unzip -u -o $LATEST  2>&1 >/dev/null
-	    # index file should not be there
-	    printf "Updated $(date)\n"  > index.html
-	    # no feed
-	    rm -rf feed/* 
+	    process_files
 	    env AWS_DEFAULT_REGION=eu-central-1 AWS_PROFILE=newslab-prototype-webspace-writer aws s3 sync --acl=public-read --quiet ./ s3://dpa-newslab-prototype-webspace/dpa-stories/beta/
 	    date "+%Y-%m-%dT%H:%M:%S ---- Uploaded $LATEST" 
 	    # find $SOURCEDIR -mtime +10
@@ -59,7 +66,7 @@ before-start() {
   local action="$1" # Action
   mkdir -p $STATICDIR
   cd $STATICDIR
-  # echo "* Starting with $action"
+  echo "Starting with $action"
 }
 
 after-finish() {
