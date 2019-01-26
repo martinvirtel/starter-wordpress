@@ -33,8 +33,8 @@ COUNTERFILE=/tmp/$$-$(basename $0)-counter
 
 process_files() {
    echo making files writable
-   sudo chgrp -R ubuntu * 
-   sudo chgrp ubuntu . 
+   sudo chown -R www-data:ubuntu * 
+   sudo chown -R www-data:ubuntu . 
    sudo chmod -R g+w *
    sudo chmod -R g+w .
    echo overwriting index file 
