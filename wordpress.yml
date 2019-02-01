@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+
+  wordpress:
+    image: wordpress-with-zip:latest
+    #image: wordpress:4.9-php7.1-apache
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_PASSWORD: aceasfsd
+    volumes:
+      - ./html:/var/www/html
+
+  mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: aceasfsd
+    volumes:
+      - ./mysql:/var/lib/mysql
