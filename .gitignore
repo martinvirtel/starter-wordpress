@@ -1,0 +1,7 @@
+html/
+duplicity-cache/
+sql/
+mysql/
+config.makefile
+la22.sql
+docker-cloud.yml
