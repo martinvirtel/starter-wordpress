@@ -1,4 +1,26 @@
+STACK_NAME := ediciones
+
+MYSQL_ROOT_PASSWORD := ...........
+WORDPRESS_PORT	    := 8089
+WORDPRESS_CNAME     := ediciones.la22.org
+
+# Define if you want to attach to an existing network
+# MYSQL_NETWORK := vmonitor_wordpress
+
+SWARM_ADVERTISE_IP  := $(shell uname -a | grep aws >/dev/null && curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
+
+
+# Certificates
+#  ssl_certificate ${CERT_DIRECTORY}/fullchain.pem;
+#  ssl_certificate_key ${CERT_DIRECTORY}/privkey.pem;
+#  ssl_trusted_certificate ${CERT_DIRECTORY}/fullchain.pem;
+# 
+#  CERT_DIRECTORY := /etc/nginx/certs/dpa-prototype.de
+
+# Credentials are used for s3 backup
+
 AWS_ACCESS_KEY_ID := AKIA--------------------
 AWS_SECRET_ACCESS_KEY := --------------------------------------- 
 
-AWS_BACKUP_BUCKET := s3://s3.eu-central-1.amazonaws.com/-----bucketname---------/--------prefix--------
+AWS_BACKUP_BUCKET := s3://s3.--aws-region--.amazonaws.com/-----bucketname---------/--------prefix--------
+

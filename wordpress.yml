@@ -1,22 +1,40 @@
-version: '3.1'
+version: '3.3'
+
+
 
 services:
 
   wordpress:
     image: wordpress-with-zip:latest
-    #image: wordpress:4.9-php7.1-apache
-    restart: always
+    # image: wordpress:4.9-php7.1-apache
     ports:
-      - 80:80
+      - "${WORDPRESS_PORT}:80"
+      # - "80"
     environment:
-      WORDPRESS_DB_PASSWORD: aceasfsd
+      WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - ./html:/var/www/html
+      - ./php/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+    networks:
+      - wordpress
 
   mysql:
     image: mysql:5.7
-    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: aceasfsd
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - ./mysql:/var/lib/mysql
+    networks:
+      - wordpress
+
+
+networks:
+    wordpress:
+        attachable: true
+
+# STACK_NAME := vmonitor
+
+# MYSQL_ROOT_PASSWORD := 0fb7cef4b333b067c27558546088d03a
+# WORDPRESS_PORT	    := 80 
+
+

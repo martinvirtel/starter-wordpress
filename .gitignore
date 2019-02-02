@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 html/
 duplicity-cache/
 sql/
@@ -5,3 +6,10 @@ mysql/
 config.makefile
 la22.sql
 docker-cloud.yml
+duplicity-cache/ 
+sql/
+backup.log
+log/
+site.conf
+site-ssl.conf
+.aws-credentials
