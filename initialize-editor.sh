@@ -26,8 +26,13 @@ for A in \
 	simply-static \
 	smart-slider-3 \
 	under-construction-page \
+	wp-ses \
 ; do 
 
 	make cli CLI="plugin install --activate $A"
 
 done
+
+wp CLI='rewrite structure "/%year%/%monthnum%/%postname%"'
+
+
