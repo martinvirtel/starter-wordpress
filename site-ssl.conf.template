@@ -29,6 +29,8 @@ server {
 
   root ${CWD}/html;
 
+  client_max_body_size 500m;
+
   ssl_certificate ${CERT_DIRECTORY}/fullchain.pem;
   ssl_certificate_key ${CERT_DIRECTORY}/privkey.pem;
   ssl_trusted_certificate ${CERT_DIRECTORY}/fullchain.pem;

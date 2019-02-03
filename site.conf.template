@@ -11,7 +11,7 @@ server {
 
   root ${CWD}/html;
 
-  
+  client_max_body_size 500m;  
    # rewrite /wp-admin$ $scheme://$host$uri/ permanent;
 
 
