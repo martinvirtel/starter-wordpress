@@ -195,6 +195,7 @@ else
 	$(MAKE) cli CLI="option set home $(SSLCNAME)"	
 	$(MAKE) cli CLI="option set siteurl $(SSLCNAME)"	
 endif
+	$(MAKE) cli CLI="option set blogname '$(WORDPRESS_NAME)'"
 
 
 set-cname-ssl:

@@ -1,9 +1,10 @@
 
 STACK_NAME := opengov
 
-MYSQL_ROOT_PASSWORD := 0fb7cef4b333b067c27558546088d03a
+MYSQL_ROOT_PASSWORD := ----------------------
 WORDPRESS_PORT	    := 8089
 WORDPRESS_CNAME     := entitats.newsradar.org
+WORDPRESS_NAME      := mper20.la22.org
 
 # Define if you want to attach to an existing network
 # MYSQL_NETWORK := vmonitor_wordpress
