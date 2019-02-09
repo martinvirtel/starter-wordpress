@@ -22,6 +22,8 @@ for A in \
 	genie-wp-favicon \
 	ghostkit \
 	gutenberg \
+	h5p \
+	header-footer-code-manager \
 	show-modified-date-in-admin-lists \
 	simply-static \
 	smart-slider-3 \
@@ -33,6 +35,6 @@ for A in \
 
 done
 
-wp CLI='rewrite structure "/%year%/%monthnum%/%postname%"'
+make cli CLI='rewrite structure "/%year%/%monthnum%/%postname%"'
 
 
