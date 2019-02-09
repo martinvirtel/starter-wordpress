@@ -39,12 +39,18 @@ server {
  		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     		proxy_set_header X-Real-IP $remote_addr;
     		proxy_set_header Host $http_host;
+		proxy_set_header X-Forwarded-Proto $scheme;
     		proxy_http_version 1.1;
     		proxy_redirect off;
     		proxy_buffering off;
     		proxy_set_header Upgrade $http_upgrade;
     		proxy_set_header Connection "upgrade";
     		proxy_read_timeout 86400;
+   		# add_header X-Frame-Options "allow_from ${WORDPRESS_CNAME}";
+   		add_header X-Frame-Options "ALLOWALL";
+		# add_header Content-Security-Policy  "frame-ancestors ${WORDPRESS_CNAME}";
+		add_header Content-Security-Policy  "default-src *  data: blob: 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob: 'unsafe-inline'; frame-src *; style-src * data: blob: 'unsafe-inline'; font-src * data: blob: 'unsafe-inline';";
+		# https://stackoverflow.com/questions/35978863/allow-all-content-security-policy
 
    }
 
