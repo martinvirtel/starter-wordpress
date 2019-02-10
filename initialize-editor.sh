@@ -18,6 +18,7 @@ fi
 
 for A in \
 	advanced-gutenberg \
+	adminimize \
 	duplicate-post \
 	genie-wp-favicon \
 	ghostkit \
