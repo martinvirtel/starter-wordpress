@@ -26,6 +26,7 @@ for A in \
 	h5p \
 	header-footer-code-manager \
 	show-modified-date-in-admin-lists \
+	simple-custom-post-order \
 	simply-static \
 	smart-slider-3 \
 	under-construction-page \
