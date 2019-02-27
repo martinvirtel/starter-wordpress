@@ -97,7 +97,7 @@ cli-term:
 	docker run -u 33 -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
 
 backup-db:
-	docker run -u 33 --rm --volumes-from $(WP_CONTAINER) \
+	docker run -u 82 --rm --volumes-from $(WP_CONTAINER) \
 		--volume $$(pwd)/sql:/tmp/sql \
 		--network container:$(WP_CONTAINER) wordpress:cli-php7.1 db export /tmp/sql/dump.sql
 
