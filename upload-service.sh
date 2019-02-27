@@ -1,10 +1,11 @@
 #! /bin/bash
 
-set -x
+# set -x
 
 # Configuration contains BUCKETPREFIX
 . upload-service.conf
 
+# Bug: Depends on starting dir ....
 export myname=$(basename $(pwd))-$(basename $0)
 export SOURCEDIR=$(dirname $0)/html/tmp
 export BUCKETNAME=dpa-newslab-prototype-webspace
@@ -49,7 +50,7 @@ process_files() {
    rm -rf feed/* 
    rm -rf comments/* 
    echo rewriting absolute links
-   sed -i.original 's_"/wp-content/_"'$DESTPREFIX'wp-content/_g;'"s_'/wp-content/_'${DESTPREFIX}wp-content/_g"\
+   sed -i.original 's_"/wp-content/_"'$DESTPREFIX'wp-content/_g;'"s_'/wp-content/_'${DESTPREFIX}wp-content/_g;" \
 		     $(find . -type f | egrep '(js|html|css)$')
 
 }
@@ -78,6 +79,7 @@ run-service() {
   local action="$1" # Action
   cd $SOURCEDIR
   echo watching $(pwd)
+  sudo chown -R www-data:ubuntu *
   while inotifywait -q -e close_write \
                     --timefmt "${TIME_FORMAT}" --format "${OUTPUT_FORMAT}" "./"; do
     if [ ! -f $RUNNING_FILE ] ; then
