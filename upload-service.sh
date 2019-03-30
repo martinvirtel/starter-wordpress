@@ -42,8 +42,9 @@ process_files() {
    echo making files writable
    sudo chown -R www-data:ubuntu * 
    sudo chown -R www-data:ubuntu . 
-   sudo chmod -R g+w *
-   sudo chmod -R g+w .
+   sudo chmod -R ug+rw *
+   sudo chmod -R ug+rw .
+   sudo find . -type d -exec chmod ug+x {} \;
    echo overwriting index file 
    printf "Updated $(date)\n"  > index.html
    echo removing feeds
