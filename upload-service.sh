@@ -11,7 +11,7 @@ export SOURCEDIR=$(dirname $0)/html/tmp
 export BUCKETNAME=dpa-newslab-prototype-webspace
 export BUCKETURL=s3://$BUCKETNAME$BUCKETPREFIX
 export DESTPREFIX=/$BUCKETNAME$BUCKETPREFIX
-
+export INDEXFILE=b7405b54de761357a2f7d5f27b38e17f.html
 
 export PID_FILE_PATH="/tmp/${myname}.pid"
 export LOG_FILE_PATH="/tmp/${myname}.log"
@@ -46,6 +46,7 @@ process_files() {
    sudo chmod -R ug+rw .
    sudo find . -type d -exec chmod ug+x {} \;
    echo overwriting index file 
+   sed 's#\$now\$#'$(date +%Y-%m-%dT%H:%M:%S%z)'#g' <index.html >${INDEXFILE}
    printf "Updated $(date)\n"  > index.html
    echo removing feeds
    rm -rf feed/* 
