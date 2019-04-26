@@ -92,6 +92,10 @@ cli:
 	@echo "wp CLI=$(CLI)" >&2 ;\
 	docker run -u 33 --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
 
+
+cli-settings:
+	docker run -u 33 --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 option set --format=json openid_connect_generic_settings '{"login_type":"button","client_id":"SHOPDPA","client_secret":"BA76F498D8F62C5589874A6C8AB89","scope":"profile email openid address phone offline_access","endpoint_login":"https:\/\/sso.dpa-id.de\/cas\/oidc\/authorize","endpoint_userinfo":"https:\/\/sso.dpa-id.de\/cas\/oidc\/profile","endpoint_token":"https:\/\/sso.dpa-id.de\/cas\/oidc\/accessToken","endpoint_end_session":"https:\/\/sso.dpa-id.de\/cas\/logout","identity_key":"preferred_username","no_sslverify":"0","http_request_timeout":"5","enforce_privacy":"0","alternate_redirect_uri":"0","nickname_key":"preferred_username","email_format":"{email}","displayname_format":"{given_name} {family_name}","identify_with_username":"0","state_time_limit":"","link_existing_users":"1","redirect_user_back":"1","redirect_on_logout":"0","enable_logging":"1","log_limit":"1000"}'
+
 cli-term:
 	@echo "wp CLI=$(CLI)" >&2 ;\
 	docker run -u 33 -it --rm --volumes-from $(WP_CONTAINER) --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
@@ -211,7 +215,9 @@ else
 	$(MAKE) set-cname-ssl
 endif
 
-
+self-signed:
+	mkdir -p localcerts ;\
+	openssl req -new -x509 -days 365 -nodes -out ./localcerts/$(WORDPRESS_CNAME).pem -keyout ./localcerts/$(WORDPRESS_CNAME).key
 
 
 test-vars:
