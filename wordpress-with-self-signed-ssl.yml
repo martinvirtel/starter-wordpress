@@ -1,0 +1,43 @@
+version: '3.3'
+
+
+
+services:
+
+  wordpress:
+    image: wordpress-with-zip:latest
+    # image: wordpress:4.9-php7.1-apache
+    ports:
+      - 80:80
+      - 443:443
+      # - "80"
+    environment:
+      WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./html:/var/www/html
+      - ./php/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./certs/${WORDPRESS_CNAME}.cert.pem:/etc/ssl/certs/ssl-cert-snakeoil.pem
+      - ./certs/${WORDPRESS_CNAME}.key.pem:/etc/ssl/private/ssl-cert-snakeoil.key
+    networks:
+      - wordpress
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./mysql:/var/lib/mysql
+    networks:
+      - wordpress
+
+
+networks:
+    wordpress:
+        attachable: true
+
+# STACK_NAME := vmonitor
+
+# MYSQL_ROOT_PASSWORD := 0fb7cef4b333b067c27558546088d03a
+# WORDPRESS_PORT	    := 80 
+
+
