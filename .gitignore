@@ -9,5 +9,7 @@ site.conf
 site-ssl.conf
 site-selfsigned-ssl.conf
 .aws-credentials
+./certs/
+.env
 
 
