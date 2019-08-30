@@ -9,7 +9,8 @@ site.conf
 site-ssl.conf
 site-selfsigned-ssl.conf
 .aws-credentials
-./certs/
+certs/**
 .env
+__pycache__/**
 
 
