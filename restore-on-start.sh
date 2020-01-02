@@ -12,6 +12,7 @@ run () {
 	make site-down
 	make get-docroot-from-aws
 	make get-db-from-aws
+	make renew-certificate
 	make site-up
 	make waiting for db to spin up $(date)
 	sleep 30

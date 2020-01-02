@@ -124,6 +124,9 @@ refresh-certificate:
 refresh-certificate-all:
 	sudo docker run --rm -p 80:80 -it --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot  certonly --standalone -d aws.versicherungsmonitor.de -d versicherungsmonitor.de -d www.versicherungsmonitor.de
 
+renew-certificate:
+	sudo docker run --rm -p 80:80 -it --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot  renew --standalone
+
 SITEURL=https://aws.versicherungsmonitor.de
 set-url:
 	make cli CLI="option set siteurl $(SITEURL)"
