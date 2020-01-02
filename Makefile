@@ -115,7 +115,7 @@ check-certificate:
 	openssl x509 -text -in  /etc/letsencrypt/live/aws.versicherungsmonitor.de/cert.pem
 
 
-renew-certificate:
+old-renew-certificate:
 	 sudo docker run --rm --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot --server https://acme-v02.api.letsencrypt.org/directory certonly
 
 refresh-certificate:
@@ -125,7 +125,7 @@ refresh-certificate-all:
 	sudo docker run --rm -p 80:80 -it --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot  certonly --standalone -d aws.versicherungsmonitor.de -d versicherungsmonitor.de -d www.versicherungsmonitor.de
 
 renew-certificate:
-	sudo docker run --rm -p 80:80 -it --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot  renew --standalone
+	sudo docker run --rm -p 80:80 -it --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot  renew --standalone --non-interactive --agree-tos -m martin.virtel@gmail.com
 
 SITEURL=https://aws.versicherungsmonitor.de
 set-url:
