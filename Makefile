@@ -101,6 +101,12 @@ backup-db:
 		--volume $$(pwd)/sql:/tmp/sql \
 		--network container:$(WP_CONTAINER) wordpress:cli-php7.1 db export /tmp/sql/dump.sql
 
+restore-db:
+	echo restoring from $$(pwd)/sql/restore.sql && \
+	test -f $$(pwd)/sql/restore.sql && \
+	docker run -u 33 --rm --volumes-from $(WP_CONTAINER) \
+		--volume $$(pwd)/sql:/tmp/sql \
+		--network container:$(WP_CONTAINER) wordpress:cli-php7.1 db import /tmp/sql/restore.sql
 install-local:
 	ADMIN_PASSWORD=$$(head /dev/urandom | md5sum | sed 's/  -//') ;\
 	$(MAKE) cli CLI="core install --url=http://$(WORDPRESS_CNAME):$(WORDPRESS_PORT) --admin_user=admin --admin_password=$${ADMIN_PASSWORD} --admin_email=test@random.domain --title=$(WORDPRESS_CNAME) --skip-email"
@@ -216,4 +222,4 @@ endif
 
 
 test-vars:
-	echo WP_SERVICE=$(WP_SERVICE) WP_CONTAINER=$(WP_CONTAINER)
+	echo STACK_NAME=$(STACK_NAME) WP_SERVICE=$(WP_SERVICE) WP_CONTAINER=$(WP_CONTAINER)
