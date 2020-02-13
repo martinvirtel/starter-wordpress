@@ -34,10 +34,10 @@ server {
   ssl_certificate ${CERT_DIRECTORY}/fullchain.pem;
   ssl_certificate_key ${CERT_DIRECTORY}/privkey.pem;
   ssl_trusted_certificate ${CERT_DIRECTORY}/fullchain.pem;
-  include /etc/nginx/snippets/ssl.conf;
+  # include /etc/nginx/snippets/ssl.conf;
 
-  client_max_body_size 100m;
-  client_body_buffer_size 20m;
+  # client_max_body_size 100m;
+  # client_body_buffer_size 20m;
 
 
   
