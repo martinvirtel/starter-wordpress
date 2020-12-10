@@ -11,9 +11,13 @@ services:
       - ${WORDPRESS_PORT}:80
       - 443:443
     environment:
-      WORDPRESS_DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      DB_HOST: mysql
+      DB_USER: root
+      DB_NAME: wordpress
     volumes:
       - ./html:/var/www/html
+      - ./config:/var/www/config
       - ./php/conf.d/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
       - ./apache2/ssl.conf:/etc/apache2/sites-enabled/002-ssl.conf
       - ./apache2/redirect.conf:/etc/apache2/sites-enabled/001-redirect.conf

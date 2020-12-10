@@ -8,13 +8,14 @@ cd ~/wordpress
 # Restore
 
 run () {
-	echo START $(date)
+	echo START 
+	make swarm-init
 	make site-down
 	make get-docroot-from-aws
 	make get-db-from-aws
 	make renew-certificate
 	make site-up
-	make waiting for db to spin up $(date)
+	echo waiting for db to spin up $(date)
 	sleep 30
 	make read-db-from-backup
 

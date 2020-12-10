@@ -61,6 +61,8 @@ site-down:
 	$(MAKE) stack ST=remove
 
 swarm-init:
+	(docker stack ls 2>&1 | grep -c "not a swarm manager") \
+	|| docker swarm leave --force ; \
 	docker swarm init --advertise-addr 127.0.0.1
 
 
@@ -94,7 +96,7 @@ get-docroot-from-aws:
 	export AWS_DEFAULT_REGION=eu-central-1 && \
 	echo ---- Getting docroot from AWS ; \
 	cd ./html/ ; \
-	sudo -E aws s3 sync s3://backup.versicherungsmonitor/freistil.versicherungsmonitor.de/docroot/ ./ 2>&1 ;\
+	sudo -E aws s3 sync s3://backup.versicherungsmonitor/fc.versicherungsmonitor.de/docroot/ ./ 2>&1 ;\
 	sudo chown -R www-data *
 	
 # sudo -E aws s3 cp --recursive s3://backup.versicherungsmonitor/freistil.versicherungsmonitor.de/docroot/ ./ ;\
@@ -107,8 +109,9 @@ get-docroot-from-aws:
 get-db-from-aws:
 	export AWS_PROFILE=versicherungsmonitor && \
 	export AWS_DEFAULT_REGION=eu-central-1 && \
+	export S3_PREFIX=s3://backup.versicherungsmonitor/fc.versicherungsmonitor.de/db/ && \
 	export NOWPATH=$$(date +%Y/%m) && \
-	sudo -E aws s3 cp s3://backup.versicherungsmonitor/freistil.versicherungsmonitor.de/db/$$NOWPATH/$$(aws s3 ls s3://backup.versicherungsmonitor/freistil.versicherungsmonitor.de/db/$$NOWPATH/ | \
+	sudo -E aws s3 cp $$S3_PREFIX$$NOWPATH/$$(aws s3 ls $$S3_PREFIX$$NOWPATH/ | \
 	sort | tail -1 | awk '{ print $$4 }') restore/mysql-db.gz
 
 check-certificate:
