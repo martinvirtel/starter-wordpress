@@ -10,12 +10,9 @@ WITH_CONFIG := set -o allexport && source <(cat .credentials .env)
 
 # WP_CONTAINER := $(shell docker inspect $(WP_SERVICE) --format '{{.ID}}')
 
-WP_SERVICE := $(shell docker stack ps $(STACK_NAME) --filter "name=$(STACK_NAME)_wordpress" --filter "desired-state=Running" --format '{{.ID}}' 2>/dev/null || echo '')
-WP_CONTAINER := $(shell docker inspect $(WP_SERVICE) --format '{{.Status.ContainerStatus.ContainerID}}' 2>/dev/null || echo '')
+WP_CONTAINER := $(shell docker inspect wordpress_wordpress_1 --format '{{.ID}}' || echo '')
+DB_CONTAINER := $(shell docker inspect wordpress_mysql_1 --format '{{.ID}}' || echo '')
 
-
-MYSQL_SERVICE := $(shell docker stack ps $(STACK_NAME) --filter "name=$(STACK_NAME)_mysql" --filter "desired-state=Running" --format '{{.ID}}' 2>/dev/null || echo '')
-MYSQL_CONTAINER := $(shell docker inspect $(MYSQL_SERVICE) --format '{{.Status.ContainerStatus.ContainerID}}' 2>/dev/null || echo '')
 
 DIRS := ./mysql  ./html
 
@@ -57,15 +54,8 @@ stack:
 
 site-up: 
 	$(WITH_CONFIG)
-	docker-compose up
+	docker-compose --file wordpress.yml up
 
-site-down:
-	$(MAKE) stack ST=remove
-
-swarm-init:
-	(docker stack ls 2>&1 | grep -c "not a swarm manager") \
-	|| docker swarm leave --force ; \
-	docker swarm init --advertise-addr 127.0.0.1
 
 
 cli: CLI = core version
@@ -78,14 +68,21 @@ enter-cli:
 	echo ECLI=$(ECLI) ;\
 	docker run -it --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) --entrypoint=/bin/sh wordpress:cli-php$(PHP_VERSION) 
 
+
 read-db-from-backup:
-	docker run --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) --entrypoint=/bin/sh wordpress:cli-php$(PHP_VERSION) -c "zcat /tmp/restore/mysql-db.gz | wp db query"
+	@$(WITH_CONFIG); \
+	printf "$$(date --iso-8601=seconds)---- read db from restore/mysql-db.gz \n" ;\
+	zcat restore/mysql-db.gz | docker exec -i $(DB_CONTAINER) \
+		sh -c 'exec mysql -u"'$$MYSQL_USER'" -p"'$$MYSQL_PASSWORD'" "'$$MYSQL_DB_NAME'"' ;\
+	printf "$$(date --iso-8601=seconds)---- read db $$(ls -lh restore/mysql-db.gz) \n" 
 
 install-local:
 	$(MAKE) cli CLI="core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=admin --admin_email=test@random.domain --title=test --skip-email"
 
+.PHONY: test
 test:
-	echo $(WP_CONTAINER)
+	echo WP in $(WP_CONTAINER)
+	echo DB in $(DB_CONTAINER)
 
 # duply-restore:
 #	sudo duply versicherungsmonitor restore /home/ubuntu/wordpress/restore --force ;\
@@ -93,13 +90,16 @@ test:
 #	sudo chmod og+r restore/mysql-db.gz 
 
 
+get-docroot-from-aws: SOURCE=s3://backup.versicherungsmonitor/fc.versicherungsmonitor.de/docroot/
 get-docroot-from-aws:
-	export AWS_PROFILE=versicherungsmonitor && \
+	@export AWS_PROFILE=versicherungsmonitor && \
 	export AWS_DEFAULT_REGION=eu-central-1 && \
-	echo ---- Getting docroot from AWS ; \
+	printf "$$(date --iso-8601=seconds)---- Sync ./html from $(SOURCE)\n" ; \
 	cd ./html/ ; \
-	sudo -E aws s3 sync s3://backup.versicherungsmonitor/fc.versicherungsmonitor.de/docroot/ ./ 2>&1 ;\
-	sudo chown -R www-data *
+	sudo -E aws s3 sync $(SOURCE) ./ 2>&1 ;\
+	sudo chown -R www-data *; \
+ 	cd - ;\
+	printf "$$(date --iso-8601=seconds)---- $$(du --summarize --human-readable html)\n"
 	
 # sudo -E aws s3 cp --recursive s3://backup.versicherungsmonitor/freistil.versicherungsmonitor.de/docroot/ ./ ;\
 #
@@ -109,12 +109,14 @@ get-docroot-from-aws:
 #	aws-s3:backup.versicherungsmonitor/freistil.versicherungsmonitor.de/docroot/ . ;\
 
 get-db-from-aws:
-	export AWS_PROFILE=versicherungsmonitor && \
+	@export AWS_PROFILE=versicherungsmonitor && \
 	export AWS_DEFAULT_REGION=eu-central-1 && \
 	export S3_PREFIX=s3://backup.versicherungsmonitor/fc.versicherungsmonitor.de/db/ && \
 	export NOWPATH=$$(date +%Y/%m) && \
-	sudo -E aws s3 cp $$S3_PREFIX$$NOWPATH/$$(aws s3 ls $$S3_PREFIX$$NOWPATH/ | \
-	sort | tail -1 | awk '{ print $$4 }') restore/mysql-db.gz
+	export DBFILE=$$S3_PREFIX$$NOWPATH/$$(aws s3 ls $$S3_PREFIX$$NOWPATH/ | sort | tail -1 | awk '{ print $$4 }') &&\
+	printf "$$(date --iso-8601=seconds)---- getting DB from $$DBFILE\n" ; \
+	sudo -E aws s3 cp $$DBFILE restore/mysql-db.gz ;\
+	printf "$$(date --iso-8601=seconds)---- $$(ls -lh restore/mysql-db.gz)\n"
 
 check-certificate:
 	openssl x509 -text -in  /etc/letsencrypt/live/aws.versicherungsmonitor.de/cert.pem

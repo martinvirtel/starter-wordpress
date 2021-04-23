@@ -4,17 +4,16 @@ services:
 
   wordpress:
     image: wordpress:5-php7.3-apache
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     ports:
       - ${WORDPRESS_PORT}:80
       - 443:443
     environment:
-      DB_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      DB_HOST: mysql
-      DB_USER: root
-      DB_NAME: wordpress
+      DB_HOST: mysql 
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_NAME: ${MYSQL_DB_NAME}
+      WP_DEBUG: "true" 
     volumes:
       - ./html:/var/www/html
       - ./config:/var/www/config
@@ -27,20 +26,20 @@ services:
 
   mysql:
     image: mysql:5.7
-    deploy:
-      restart_policy:
-        condition: on-failure
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
     volumes:
       - ./mysql:/var/lib/mysql
 
 
 
+volumes:
+  wordpress:
+  db:
 
-# STACK_NAME := vmonitor
-
-# MYSQL_ROOT_PASSWORD := 0fb7cef4b333b067c27558546088d03a
-# WORDPRESS_PORT	    := 80 
 
 

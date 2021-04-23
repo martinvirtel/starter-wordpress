@@ -9,11 +9,13 @@ cd ~/wordpress
 
 run () {
 	echo START 
-	make swarm-init
-	make site-down
 	make get-docroot-from-aws
 	make get-db-from-aws
-	make renew-certificate
+	#
+	# certificate from cloudflare
+	#
+	# make renew-certificate 
+	#
 	make site-up
 	echo waiting for db to spin up $(date)
 	sleep 30
