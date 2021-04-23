@@ -1,4 +1,8 @@
 config.makefile
 html/
 mysql/
-
+data/
+restore/
+lastrun.log*
+.credentials
+.env

@@ -4,9 +4,6 @@ services:
 
   wordpress:
     image: wordpress:5-php7.3-apache
-    deploy:
-      restart_policy:
-        condition: on-failure
     ports:
       - ${WORDPRESS_PORT}:80
       - 443:443
@@ -27,9 +24,6 @@ services:
 
   mysql:
     image: mysql:5.7
-    deploy:
-      restart_policy:
-        condition: on-failure
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:

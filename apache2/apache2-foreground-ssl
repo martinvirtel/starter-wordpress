@@ -39,5 +39,7 @@ done
 
 a2enmod ssl
 a2enmod rewrite
+a2enmod headers
+
 
 exec apache2 -DFOREGROUND "$@"

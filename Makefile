@@ -4,6 +4,7 @@ SHELL := /bin/bash
 include config.makefile
 
 
+WITH_CONFIG := set -o allexport && source <(cat .credentials .env)
 
 # WP_SERVICE := $(shell docker stack ps $(STACK_NAME) --filter "name=vmonitor_wordpress" --filter "desired-state=Ready" --format '{{.ID}}' )
 
@@ -55,7 +56,8 @@ stack:
 	docker stack $(ST) $(STACK_NAME)
 
 site-up: 
-	$(MAKE) deploy
+	$(WITH_CONFIG)
+	docker-compose up
 
 site-down:
 	$(MAKE) stack ST=remove
@@ -66,18 +68,18 @@ swarm-init:
 	docker swarm init --advertise-addr 127.0.0.1
 
 
-CLI := core version
+cli: CLI = core version
 cli:
 	@echo wp CLI=$(CLI) ;\
-	docker run --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) wordpress:cli-php7.1 $(CLI)
+	docker run --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) wordpress:cli-php$(PHP_VERSION) $(CLI)
 
 
 enter-cli:
 	echo ECLI=$(ECLI) ;\
-	docker run -it --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) --entrypoint=/bin/sh wordpress:cli-php7.1 
+	docker run -it --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) --entrypoint=/bin/sh wordpress:cli-php$(PHP_VERSION) 
 
 read-db-from-backup:
-	docker run --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) --entrypoint=/bin/sh wordpress:cli-php7.1 -c "zcat /tmp/restore/mysql-db.gz | wp db query"
+	docker run --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) --entrypoint=/bin/sh wordpress:cli-php$(PHP_VERSION) -c "zcat /tmp/restore/mysql-db.gz | wp db query"
 
 install-local:
 	$(MAKE) cli CLI="core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=admin --admin_email=test@random.domain --title=test --skip-email"
