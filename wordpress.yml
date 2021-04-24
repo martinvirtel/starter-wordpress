@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   wordpress:
-    image: wordpress:5-php7.3-apache
+    image: wordpress:5.7.1-php7.4-apache
     restart: always
     ports:
       - ${WORDPRESS_PORT}:80

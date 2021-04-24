@@ -82,15 +82,20 @@ define( 'WP_DEBUG', getenv('WP_DEBUG'));
  * @since 2.6.0
  */
 
-define('AUTH_KEY',         '4Hzl#v~{-~,+3MkSC7+tBXr1BEg[LL]XJJf6]stq^dI@S:RqAgiS+,K;kqJX!K]R');
-define('SECURE_AUTH_KEY',  'V$czxSv^Z=S|;ldiFlQVlD;M}A$FLgc|L+?XQS thrie~U.yOTUmDSOg%P]|&tly');
-define('LOGGED_IN_KEY',    'GJp1{0f6m;,h3EAs&kDLN$JXYL,NTyL -28-FJiQdoEH_+a~wXms]-uLxvl4DvW9');
-define('NONCE_KEY',        '~%`h>Q,}[jtWNLYV0--9K>5e4+d;~HQV0Uel.Tx$,[7m|F~q)3U6b5zAt_{]TCV0');
-define('AUTH_SALT',        '&P:%!~F u8820U7WojNh[RVrS]=z551wpn)8%W0],7R@sHRqB?M?Jt&; XY6HQu&');
-define('SECURE_AUTH_SALT', '-`07F1M!AG9uKedu:>Z`lT?>J5Ndie2P5Hfq^m>:wYA-nI|j9kO%HZ,Y5Lk#kDN+');
-define('LOGGED_IN_SALT',   '.;unIF[gE2p<UsX_QO,0YgPz4|~kpDA(WP3v#>}ZPu4e2tY_VzPv{s9L75/B/m/k');
-define('NONCE_SALT',       'mFbpAHu;$i{WLT*C=Z~(H+(?t}E1d5|htYP%;aF:DptL?rz1hv|@fbU92  B5i6w');
+function my_c_define($name, $value) {
+	defined($name) or define($name, $value);
+};
 
+my_c_define('AUTH_KEY',  'V$czxSv^Z=S|;ldiFlQVlD;M}A$FLgc|L+?XQS thrie~U.yOTUmDSOg%P]|&tly');
+my_c_define('SECURE_AUTH_KEY',  'V$czxSv^Z=S|;ldiFlQVlD;M}A$FLgc|L+?XQS thrie~U.yOTUmDSOg%P]|&tly');
+my_c_define('LOGGED_IN_KEY',    'GJp1{0f6m;,h3EAs&kDLN$JXYL,NTyL -28-FJiQdoEH_+a~wXms]-uLxvl4DvW9');
+my_c_define('NONCE_KEY',        '~%`h>Q,}[jtWNLYV0--9K>5e4+d;~HQV0Uel.Tx$,[7m|F~q)3U6b5zAt_{]TCV0');
+my_c_define('AUTH_SALT',        '&P:%!~F u8820U7WojNh[RVrS]=z551wpn)8%W0],7R@sHRqB?M?Jt&; XY6HQu&');
+my_c_define('SECURE_AUTH_SALT', '-`07F1M!AG9uKedu:>Z`lT?>J5Ndie2P5Hfq^m>:wYA-nI|j9kO%HZ,Y5Lk#kDN+');
+my_c_define('LOGGED_IN_SALT',   '.;unIF[gE2p<UsX_QO,0YgPz4|~kpDA(WP3v#>}ZPu4e2tY_VzPv{s9L75/B/m/k');
+my_c_define('NONCE_SALT',       'mFbpAHu;$i{WLT*C=Z~(H+(?t}E1d5|htYP%;aF:DptL?rz1hv|@fbU92  B5i6w');
+
+define('PH_ENV', "PRODUCTION"); 
 /**#@-*/
 
 /**
@@ -114,7 +119,7 @@ $table_prefix = 'wp_';
  *
  * @link https://codex.wordpress.org/Debugging_in_WordPress
  */
-define( 'WP_DEBUG', false );
+/* define( 'WP_DEBUG', false ); */
 
 /* Das war’s, Schluss mit dem Bearbeiten! Viel Spaß. */
 /* That's all, stop editing! Happy publishing. */

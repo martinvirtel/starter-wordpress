@@ -9,27 +9,25 @@ cd ~/wordpress
 
 run () {
 	echo START 
-	make get-docroot-from-aws
-	make get-db-from-aws
-	#
-	# certificate from cloudflare
-	#
-	# make renew-certificate 
-	#
+	make site-down
+	( 
+	  make get-docroot-from-aws 
+	  make correct-docroot
+	) &
+	( 
+	  make get-db-from-aws
+	  make db-up
+	  make read-db-from-backup 
+	  make set-url
+	  make db-down
+	) &
+	wait
 	make site-up
-	echo waiting for db to spin up $(date)
-	sleep 30
-	make read-db-from-backup
-
-	# Hostnamen setzen
-
-	make set-url
 	echo end --- $(date)
-
 
 }
 
 
-mv lastrun.log lastrun.log.$(date +%Y%m%d%H%M%S -r lastrun.log) 2>/dev/null
-run >lastrun.log 2>&1 
+mv logs/lastrun.log logs/lastrun.log.$(date +%Y%m%d%H%M%S -r logs/lastrun.log) 2>/dev/null
+run >logs/lastrun.log 2>&1 
 

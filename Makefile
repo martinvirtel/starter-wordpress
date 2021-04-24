@@ -6,10 +6,6 @@ include config.makefile
 
 WITH_CONFIG := set -o allexport && source <(cat .credentials .env)
 
-# WP_SERVICE := $(shell docker stack ps $(STACK_NAME) --filter "name=vmonitor_wordpress" --filter "desired-state=Ready" --format '{{.ID}}' )
-
-# WP_CONTAINER := $(shell docker inspect $(WP_SERVICE) --format '{{.ID}}')
-
 WP_CONTAINER := $(shell docker inspect wordpress_wordpress_1 --format '{{.ID}}' || echo '')
 DB_CONTAINER := $(shell docker inspect wordpress_mysql_1 --format '{{.ID}}' || echo '')
 
@@ -42,26 +38,36 @@ log:
 	echo LOG=$(LOG) ;\
 	docker logs $(LOG) $(WP_CONTAINER)
 
-deploy: dirs 
-	WORDPRESS_PORT=$(WORDPRESS_PORT) \
-	MYSQL_ROOT_PASSWORD=$(MYSQL_ROOT_PASSWORD) \
-	docker stack deploy --compose-file wordpress.yml $(STACK_NAME) 
 
-ST = ps
-stack:  
-	@echo ST=$(ST) - docker stack $(ST) $(STACK_NAME) ;\
-	docker stack $(ST) $(STACK_NAME)
+db-up:
+	$(WITH_CONFIG)
+	docker-compose --file mysql.yml up -d
+
+db-down:
+	$(WITH_CONFIG)
+	docker-compose --file mysql.yml down
 
 site-up: 
 	$(WITH_CONFIG)
-	docker-compose --file wordpress.yml up
+	docker-compose --file wordpress.yml up -d
 
+site-down: 
+	$(WITH_CONFIG)
+	docker-compose --file wordpress.yml down
 
 
 cli: CLI = core version
 cli:
 	@echo wp CLI=$(CLI) ;\
-	docker run --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) wordpress:cli-php$(PHP_VERSION) $(CLI)
+	$(WITH_CONFIG) ;\
+	docker run --rm --volumes-from $(WP_CONTAINER) \
+	       -v$(shell pwd)/restore:/tmp/restore \
+	       --network container:$(WP_CONTAINER) \
+	       --env DB_USER=$$MYSQL_USER \
+	       --env DB_PASSWORD=$$MYSQL_PASSWORD \
+	       --env DB_NAME=$$MYSQL_DB_NAME \
+	       --env DB_HOST=mysql \
+	       wordpress:cli-php$(PHP_VERSION) wp $(CLI)
 
 
 enter-cli:
@@ -75,9 +81,6 @@ read-db-from-backup:
 	zcat restore/mysql-db.gz | docker exec -i $(DB_CONTAINER) \
 		sh -c 'exec mysql -u"'$$MYSQL_USER'" -p"'$$MYSQL_PASSWORD'" "'$$MYSQL_DB_NAME'"' ;\
 	printf "$$(date --iso-8601=seconds)---- read db $$(ls -lh restore/mysql-db.gz) \n" 
-
-install-local:
-	$(MAKE) cli CLI="core install --url=http://127.0.0.1:$(WORDPRESS_PORT) --admin_user=admin --admin_password=admin --admin_email=test@random.domain --title=test --skip-email"
 
 .PHONY: test
 test:
@@ -118,24 +121,21 @@ get-db-from-aws:
 	sudo -E aws s3 cp $$DBFILE restore/mysql-db.gz ;\
 	printf "$$(date --iso-8601=seconds)---- $$(ls -lh restore/mysql-db.gz)\n"
 
-check-certificate:
-	openssl x509 -text -in  /etc/letsencrypt/live/aws.versicherungsmonitor.de/cert.pem
+
+correct-docroot:
+	sudo cp config/wp-config-aws.php html/wp-config.php && \
+	cat config/after_extract.sh | \
+	docker exec -it $(WP_CONTAINER) /bin/bash config/after_extract.sh
 
 
-old-renew-certificate:
-	 sudo docker run --rm --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot --server https://acme-v02.api.letsencrypt.org/directory certonly
 
-refresh-certificate:
-	sudo docker run --rm -p 80:80 -it --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot  certonly --standalone -d aws.versicherungsmonitor.de
 
-refresh-certificate-all:
-	sudo docker run --rm -p 80:80 -it --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot  certonly --standalone -d aws.versicherungsmonitor.de -d versicherungsmonitor.de -d www.versicherungsmonitor.de
 
-renew-certificate:
-	sudo docker run --rm -p 80:80 -it --name certbot -v "/etc/letsencrypt:/etc/letsencrypt" -v "/var/lib/letsencrypt:/var/lib/letsencrypt" certbot/certbot  renew --standalone --non-interactive --agree-tos -m martin.virtel@gmail.com
 
 SITEURL=https://aws.versicherungsmonitor.de
 set-url:
-	make cli CLI="option set siteurl $(SITEURL)"
-	make cli CLI="option set home $(SITEURL)"
+	$(WITH_CONFIG); \
+	echo 'update wp_options set option_value="$(SITEURL)" where option_name in ("home", "siteurl")' | \
+	docker exec -i $(DB_CONTAINER) \
+		sh -c 'exec mysql -u"'$$MYSQL_USER'" -p"'$$MYSQL_PASSWORD'" "'$$MYSQL_DB_NAME'"' ;\
 
