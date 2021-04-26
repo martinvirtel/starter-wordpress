@@ -1,8 +1,6 @@
 
 SHELL := /bin/bash
 
-include config.makefile
-
 
 WITH_CONFIG := set -o allexport && source <(cat .credentials .env)
 

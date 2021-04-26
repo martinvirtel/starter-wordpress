@@ -61,13 +61,7 @@ define( 'DB_CHARSET', 'utf8' );
  */
 define('DB_COLLATE', '');
 
-try {
-
-define( 'WP_DEBUG', getenv('WP_DEBUG'));
-
-} catch (Exception $e) {
-
-}
+define( 'WP_DEBUG', false);
 
 /**#@+
  * Sicherheitsschlüssel

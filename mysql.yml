@@ -13,6 +13,14 @@ services:
     volumes:
       - ./mysql:/var/lib/mysql
 
+  web:
+    image: nginx
+    ports:
+      - 80:80
+    volumes:
+      - ./logs:/usr/share/nginx/html:ro
+
+
 volumes:
   mysql:
 
