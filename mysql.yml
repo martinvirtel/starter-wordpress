@@ -14,7 +14,7 @@ services:
       - ./mysql:/var/lib/mysql
 
 volumes:
-  db:
+  mysql:
 
 
 

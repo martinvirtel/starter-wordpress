@@ -6,8 +6,8 @@ include config.makefile
 
 WITH_CONFIG := set -o allexport && source <(cat .credentials .env)
 
-WP_CONTAINER := $(shell docker inspect wordpress_wordpress_1 --format '{{.ID}}' || echo '')
-DB_CONTAINER := $(shell docker inspect wordpress_mysql_1 --format '{{.ID}}' || echo '')
+WP_CONTAINER := $(shell docker inspect wordpress_wordpress_1 --format '{{.ID}}' 2>/dev/null || echo '')
+DB_CONTAINER := $(shell docker inspect wordpress_mysql_1 --format '{{.ID}}' 2>/dev/null  || echo '')
 
 
 DIRS := ./mysql  ./html
@@ -40,19 +40,19 @@ log:
 
 
 db-up:
-	$(WITH_CONFIG)
+	@$(WITH_CONFIG) ;\
 	docker-compose --file mysql.yml up -d
 
 db-down:
-	$(WITH_CONFIG)
+	@$(WITH_CONFIG) ;\
 	docker-compose --file mysql.yml down
 
 site-up: 
-	$(WITH_CONFIG)
+	@$(WITH_CONFIG) ;\
 	docker-compose --file wordpress.yml up -d
 
 site-down: 
-	$(WITH_CONFIG)
+	@$(WITH_CONFIG) ;\
 	docker-compose --file wordpress.yml down
 
 
@@ -77,10 +77,12 @@ enter-cli:
 
 read-db-from-backup:
 	@$(WITH_CONFIG); \
-	printf "$$(date --iso-8601=seconds)---- read db from restore/mysql-db.gz \n" ;\
-	zcat restore/mysql-db.gz | docker exec -i $(DB_CONTAINER) \
-		sh -c 'exec mysql -u"'$$MYSQL_USER'" -p"'$$MYSQL_PASSWORD'" "'$$MYSQL_DB_NAME'"' ;\
-	printf "$$(date --iso-8601=seconds)---- read db $$(ls -lh restore/mysql-db.gz) \n" 
+	printf "$$(date --iso-8601=seconds)---- START read db from restore/mysql-db.gz \n" ;\
+	zcat restore/mysql-db.gz | \
+	docker exec -i $(DB_CONTAINER) \
+		/bin/bash -c 'mysql --defaults-extra-file=<(printf "[client]\npassword='$$MYSQL_PASSWORD'\nuser='$$MYSQL_USER'\n") "'$$MYSQL_DB_NAME'"' ;\
+	printf "$$(date --iso-8601=seconds)---- END read db from restore/mysql-db.gz \n" ;\
+	printf "$$(date --iso-8601=seconds)---- REPORT read db echo $$(echo "select count(*) as posts, 'posts, newest' as p, max(post_date) as latest from wp_posts" | make  querymysql | tail -1)" 
 
 .PHONY: test
 test:
@@ -97,12 +99,13 @@ get-docroot-from-aws: SOURCE=s3://backup.versicherungsmonitor/fc.versicherungsmo
 get-docroot-from-aws:
 	@export AWS_PROFILE=versicherungsmonitor && \
 	export AWS_DEFAULT_REGION=eu-central-1 && \
-	printf "$$(date --iso-8601=seconds)---- Sync ./html from $(SOURCE)\n" ; \
+	printf "$$(date --iso-8601=seconds)---- START sync ./html from $(SOURCE)\n" ; \
 	cd ./html/ ; \
-	sudo -E aws s3 sync $(SOURCE) ./ 2>&1 ;\
+	sudo -E aws s3 sync --only-show-errors $(SOURCE) ./ ;\
 	sudo chown -R www-data *; \
  	cd - ;\
-	printf "$$(date --iso-8601=seconds)---- $$(du --summarize --human-readable html)\n"
+	printf "$$(date --iso-8601=seconds)---- END sync ./html from $(SOURCE)\n" ; \
+	printf "$$(date --iso-8601=seconds)---- REPORT sync ./html $$(du --summarize --human-readable html)\n"
 	
 # sudo -E aws s3 cp --recursive s3://backup.versicherungsmonitor/freistil.versicherungsmonitor.de/docroot/ ./ ;\
 #
@@ -117,25 +120,31 @@ get-db-from-aws:
 	export S3_PREFIX=s3://backup.versicherungsmonitor/fc.versicherungsmonitor.de/db/ && \
 	export NOWPATH=$$(date +%Y/%m) && \
 	export DBFILE=$$S3_PREFIX$$NOWPATH/$$(aws s3 ls $$S3_PREFIX$$NOWPATH/ | sort | tail -1 | awk '{ print $$4 }') &&\
-	printf "$$(date --iso-8601=seconds)---- getting DB from $$DBFILE\n" ; \
-	sudo -E aws s3 cp $$DBFILE restore/mysql-db.gz ;\
-	printf "$$(date --iso-8601=seconds)---- $$(ls -lh restore/mysql-db.gz)\n"
+	printf "$$(date --iso-8601=seconds)---- START getting DB from $$DBFILE\n" ; \
+	sudo -E aws s3 cp --only-show-errors $$DBFILE restore/mysql-db.gz ;\
+	printf "$$(date --iso-8601=seconds)---- END getting DB from $$DBFILE\n" ; \
+	printf "$$(date --iso-8601=seconds)---- REPORT getting DB $$(ls -lh restore/mysql-db.gz)\n"
 
 
 correct-docroot:
 	sudo cp config/wp-config-aws.php html/wp-config.php && \
-	cat config/after_extract.sh | \
-	docker exec -it $(WP_CONTAINER) /bin/bash config/after_extract.sh
+	docker exec $(WP_CONTAINER) /bin/bash ../config/after_extract.sh
 
 
+.PHONY: querymysql
+querymysql:
+	@$(WITH_CONFIG); \
+	docker exec -i $(DB_CONTAINER) \
+		/bin/bash -c 'mysql --defaults-extra-file=<(printf "[client]\npassword='$$MYSQL_PASSWORD'\nuser='$$MYSQL_USER'\n") "'$$MYSQL_DB_NAME'"' 
 
 
 
 
 SITEURL=https://aws.versicherungsmonitor.de
 set-url:
-	$(WITH_CONFIG); \
+	@$(WITH_CONFIG); \
+	printf "Setting siteurl to $(SITEURL)\n" >&2 ;\
 	echo 'update wp_options set option_value="$(SITEURL)" where option_name in ("home", "siteurl")' | \
 	docker exec -i $(DB_CONTAINER) \
-		sh -c 'exec mysql -u"'$$MYSQL_USER'" -p"'$$MYSQL_PASSWORD'" "'$$MYSQL_DB_NAME'"' ;\
+		/bin/bash -c 'mysql --defaults-extra-file=<(printf "[client]\npassword='$$MYSQL_PASSWORD'\nuser='$$MYSQL_USER'\n") "'$$MYSQL_DB_NAME'"' ;\
 

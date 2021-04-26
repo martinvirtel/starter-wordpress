@@ -8,21 +8,18 @@ cd ~/wordpress
 # Restore
 
 run () {
-	echo START 
-	make site-down
-	( 
-	  make get-docroot-from-aws 
+	echo START --- $(date)
+	  make site-down
+	  make get-docroot-from-aws &
+	  ( make get-db-from-aws
+	    make db-up
+	    sleep 10
+	    make read-db-from-backup 
+	    make set-url
+	    make db-down ) &
+	  wait
+	  make site-up
 	  make correct-docroot
-	) &
-	( 
-	  make get-db-from-aws
-	  make db-up
-	  make read-db-from-backup 
-	  make set-url
-	  make db-down
-	) &
-	wait
-	make site-up
 	echo end --- $(date)
 
 }
