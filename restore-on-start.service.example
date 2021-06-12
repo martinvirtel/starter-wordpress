@@ -1,0 +1,11 @@
+[Unit]
+Description=Restore Wordpress from Backup on start
+Requires=docker.service
+
+[Service]
+Type=oneshot
+User=ec2-user
+ExecStart=/home/ec2-user/wordpress/restore-on-start.sh
+
+[Install]
+WantedBy=multi-user.target
