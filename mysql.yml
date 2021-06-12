@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   mysql:
-    image: mysql:5.7
+    image: arm64v8/mariadb
     restart: always
     environment:
       MYSQL_DATABASE: ${MYSQL_DB_NAME}

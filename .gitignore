@@ -6,3 +6,5 @@ restore/
 lastrun.log*
 .credentials
 .env
+certbot/
+

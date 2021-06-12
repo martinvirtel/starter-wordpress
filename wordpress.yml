@@ -21,11 +21,11 @@ services:
       - ./apache2/ssl.conf:/etc/apache2/sites-enabled/002-ssl.conf
       - ./apache2/redirect.conf:/etc/apache2/sites-enabled/001-redirect.conf
       - ./apache2/apache2-foreground-ssl:/usr/local/bin/apache2-foreground
-      - /etc/letsencrypt/live/aws.versicherungsmonitor.de/cert.pem:/etc/ssl/certificate.pem
-      - /etc/letsencrypt/live/aws.versicherungsmonitor.de/privkey.pem:/etc/ssl/private/privkey.pem
+      - ./certbot/config/live/versicherungsmonitor.de/cert.pem:/etc/ssl/certificate.pem
+      - ./certbot/config/live/versicherungsmonitor.de/privkey.pem:/etc/ssl/private/privkey.pem
 
   mysql:
-    image: mysql:5.7
+    image: arm64v8/mariadb
     restart: always
     environment:
       MYSQL_DATABASE: ${MYSQL_DB_NAME}

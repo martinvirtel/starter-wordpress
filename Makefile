@@ -84,8 +84,9 @@ read-db-from-backup:
 
 .PHONY: test
 test:
-	echo WP in $(WP_CONTAINER)
+	@echo WP in $(WP_CONTAINER)
 	echo DB in $(DB_CONTAINER)
+	echo PATH $(PATH)
 
 # duply-restore:
 #	sudo duply versicherungsmonitor restore /home/ubuntu/wordpress/restore --force ;\
@@ -100,7 +101,7 @@ get-docroot-from-aws:
 	printf "$$(date --iso-8601=seconds)---- START sync ./html from $(SOURCE)\n" ; \
 	cd ./html/ ; \
 	sudo -E aws s3 sync --only-show-errors $(SOURCE) ./ ;\
-	sudo chown -R www-data *; \
+	sudo chown -R 33 *; \
  	cd - ;\
 	printf "$$(date --iso-8601=seconds)---- END sync ./html from $(SOURCE)\n" ; \
 	printf "$$(date --iso-8601=seconds)---- REPORT sync ./html $$(du --summarize --human-readable html)\n"
