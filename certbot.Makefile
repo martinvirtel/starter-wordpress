@@ -9,7 +9,7 @@ SHELL := /bin/bash
 renew: 
 	export CERTBOTDIR=$$(pwd)/certbot
 	echo $$CERTBOTDIR
-	docker run --rm -it \
+	docker run --rm \
 		--mount type=bind,src="$$CERTBOTDIR",dst=/tmp \
 		certbot/dns-cloudflare:arm64v8-v1.16.0 \
 		certonly \
