@@ -137,9 +137,31 @@ querymysql:
 		/bin/bash -c 'mysql --defaults-extra-file=<(printf "[client]\npassword='$$MYSQL_PASSWORD'\nuser='$$MYSQL_USER'\n") "'$$MYSQL_DB_NAME'"' 
 
 
+.PHONY: aws.versicherungsmonitor.de
+aws.versicherungsmonitor.de:
+	$(MAKE) set-url SITEURL=https://aws.versicherungsmonitor.de ;\
+	rm apache2/ssl.conf ;\
+	cd apache2 && ln -s ssl-aws.versicherungsmonitor.de.conf ssl.conf ;\
+	cd .. ;\
+	$(MAKE) site-down ;\
+	$(MAKE) site-up
 
 
-SITEURL=https://aws.versicherungsmonitor.de
+.PHONY: versicherungsmonitor.de
+versicherungsmonitor.de:
+	$(MAKE) set-url SITEURL=https://versicherungsmonitor.de ;\
+	rm apache2/ssl.conf ;\
+	cd apache2 && ln -s ssl-versicherungsmonitor.de.conf ssl.conf ;\
+	cd .. ;\
+	$(MAKE) site-down ;\
+	$(MAKE) site-up
+
+
+
+
+
+
+set-url: SITEURL=https://aws.versicherungsmonitor.de
 set-url:
 	@$(WITH_CONFIG); \
 	printf "Setting siteurl to $(SITEURL)\n" >&2 ;\

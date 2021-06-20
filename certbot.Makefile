@@ -22,7 +22,10 @@ renew:
 		-n \
 		--dns-cloudflare \
 		--dns-cloudflare-credentials /tmp/cloudflare.ini \
-		-d "*.versicherungsmonitor.de"
+		-d "*.versicherungsmonitor.de" \
+		-d "versicherungsmonitor.de" \
+		--expand 
+
 
 
 # help prints out lines with double # 
