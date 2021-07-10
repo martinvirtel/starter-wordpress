@@ -6,10 +6,10 @@ SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 .PHONY: renew
-renew: 
-	export CERTBOTDIR=$$(pwd)/certbot
-	echo $$CERTBOTDIR
-	docker run --rm \
+renew: ## renew certificate with letsencrypt 
+	@export CERTBOTDIR=$$(pwd)/certbot
+	echo attempting renewal of '*.versicherungsmonitor.de' - files in $$CERTBOTDIR
+	(docker run --rm \
 		--mount type=bind,src="$$CERTBOTDIR",dst=/tmp \
 		certbot/dns-cloudflare:arm64v8-v1.16.0 \
 		certonly \
@@ -25,6 +25,7 @@ renew:
 		-d "*.versicherungsmonitor.de" \
 		-d "versicherungsmonitor.de" \
 		--expand 
+	) 2>&1 | sed 's/.*/\t&/'
 
 
 
