@@ -3,7 +3,7 @@ version: '3.1'
 services:
 
   wordpress:
-    image: wordpress:5.7.1-php7.3-apache
+    image: wordpress:5.7.1-php7.4-apache
     restart: always
     ports:
       - ${WORDPRESS_PORT}:80
@@ -35,6 +35,13 @@ services:
     volumes:
       - ./mysql:/var/lib/mysql
 
+  web:
+    image: nginx
+    ports:
+      - 8080:80
+    volumes:
+      - ./logs:/usr/share/nginx/html:ro
+      - ./config/nginx-setup.mime.types:/etc/nginx/mime.types 
 
 
 volumes:

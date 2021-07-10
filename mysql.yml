@@ -16,9 +16,10 @@ services:
   web:
     image: nginx
     ports:
-      - 80:80
+      - 8080:80
     volumes:
       - ./logs:/usr/share/nginx/html:ro
+      - ./config/nginx-setup.mime.types:/etc/nginx/mime.types 
 
 
 volumes:

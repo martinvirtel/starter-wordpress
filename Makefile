@@ -1,17 +1,19 @@
 
 SHELL := /bin/bash
 
+__PROMPT := $(shell echo Starting up, please wait)
 
 WITH_CONFIG := set -o allexport && source <(cat .credentials .env)
 
 WP_CONTAINER := $(shell docker inspect wordpress_wordpress_1 --format '{{.ID}}' 2>/dev/null || echo '')
 DB_CONTAINER := $(shell docker inspect wordpress_mysql_1 --format '{{.ID}}' 2>/dev/null  || echo '')
 
+PHP_VERSION=7.4
 
 DIRS := ./mysql  ./html
 
 
-dirs:
+dirs: ## create directory structure
 	@{ \
 	if [ ! -d html ] ; then \
 		mkdir html ;\
@@ -25,36 +27,37 @@ dirs:
 	fi ;\
 	}
 
-enter:
+enter: ## get shell prompt in running wordpress container
 	docker exec -it $(WP_CONTAINER) /bin/bash 
 
-enter-mysql:
+enter-mysql: ## get shell prompt in running mysql container
 	docker exec -it $(MYSQL_CONTAINER) /bin/bash
 
+.PHONY: log
 LOG := -f
-log:
+log: ## show wordpress container logs with LOG=-f
 	echo LOG=$(LOG) ;\
 	docker logs $(LOG) $(WP_CONTAINER)
 
 
-db-up:
+db-up: ## start mysql only setup
 	@$(WITH_CONFIG) ;\
 	docker-compose --file mysql.yml up -d
 
-db-down:
+db-down: ## stop mysql only setup
 	@$(WITH_CONFIG) ;\
 	docker-compose --file mysql.yml down
 
-site-up: 
+site-up: ## start mysql + wordpress 
 	@$(WITH_CONFIG) ;\
 	docker-compose --file wordpress.yml up -d
 
-site-down: 
+site-down: ## stop mysql + wordpress 
 	@$(WITH_CONFIG) ;\
 	docker-compose --file wordpress.yml down
 
 
-cli: CLI = core version
+cli: CLI = core version ## run wp cli command CLI=
 cli:
 	@echo wp CLI=$(CLI) ;\
 	$(WITH_CONFIG) ;\
@@ -68,12 +71,12 @@ cli:
 	       wordpress:cli-php$(PHP_VERSION) wp $(CLI)
 
 
-enter-cli:
+enter-cli: ## interactive wp cli, useful for database shell
 	echo ECLI=$(ECLI) ;\
 	docker run -it --rm --volumes-from $(WP_CONTAINER) -v$(shell pwd)/restore:/tmp/restore --network container:$(WP_CONTAINER) --entrypoint=/bin/sh wordpress:cli-php$(PHP_VERSION) 
 
 
-read-db-from-backup:
+read-db-from-backup: ## gets data from restore/mysql-db.gz
 	@$(WITH_CONFIG); \
 	printf "$$(date --iso-8601=seconds)---- START read db from restore/mysql-db.gz \n" ;\
 	zcat restore/mysql-db.gz | \
@@ -95,7 +98,7 @@ test:
 
 
 get-docroot-from-aws: SOURCE=s3://backup.versicherungsmonitor/fc.versicherungsmonitor.de/docroot/
-get-docroot-from-aws:
+get-docroot-from-aws: ## get s3 backup
 	@export AWS_PROFILE=versicherungsmonitor && \
 	export AWS_DEFAULT_REGION=eu-central-1 && \
 	printf "$$(date --iso-8601=seconds)---- START sync ./html from $(SOURCE)\n" ; \
@@ -113,7 +116,7 @@ get-docroot-from-aws:
 #                   --log-level INFO 
 #	aws-s3:backup.versicherungsmonitor/freistil.versicherungsmonitor.de/docroot/ . ;\
 
-get-db-from-aws:
+get-db-from-aws: ## 
 	@export AWS_PROFILE=versicherungsmonitor && \
 	export AWS_DEFAULT_REGION=eu-central-1 && \
 	export S3_PREFIX=s3://backup.versicherungsmonitor/fc.versicherungsmonitor.de/db/ && \
@@ -125,13 +128,13 @@ get-db-from-aws:
 	printf "$$(date --iso-8601=seconds)---- REPORT getting DB $$(ls -lh restore/mysql-db.gz)\n"
 
 
-correct-docroot:
-	sudo cp config/wp-config-aws.php html/wp-config.php && \
-	docker exec $(WP_CONTAINER) /bin/bash ../config/after_extract.sh
+correct-docroot: # sume composer magic
+	sudo cp config/wp-config-aws.php html/wp-config.php
+	# docker exec $(WP_CONTAINER) /bin/bash ../config/after_extract.sh
 
 
 .PHONY: querymysql
-querymysql:
+querymysql: ## get mysql from STDIN, Result to stdout
 	@$(WITH_CONFIG); \
 	docker exec -i $(DB_CONTAINER) \
 		/bin/bash -c 'mysql --defaults-extra-file=<(printf "[client]\npassword='$$MYSQL_PASSWORD'\nuser='$$MYSQL_USER'\n") "'$$MYSQL_DB_NAME'"' 
@@ -139,7 +142,7 @@ querymysql:
 
 .PHONY: aws.versicherungsmonitor.de
 aws.versicherungsmonitor.de:
-	$(MAKE) set-url SITEURL=https://aws.versicherungsmonitor.de ;\
+	$(MAKE) set-url SITEURL=https://aws.versicherungsmonitor.de;\
 	rm apache2/ssl.conf ;\
 	cd apache2 && ln -s ssl-aws.versicherungsmonitor.de.conf ssl.conf ;\
 	cd .. ;\
@@ -149,7 +152,7 @@ aws.versicherungsmonitor.de:
 
 .PHONY: versicherungsmonitor.de
 versicherungsmonitor.de:
-	$(MAKE) set-url SITEURL=https://versicherungsmonitor.de ;\
+	$(MAKE) set-url SITEURL=https://versicherungsmonitor.de;\
 	rm apache2/ssl.conf ;\
 	cd apache2 && ln -s ssl-versicherungsmonitor.de.conf ssl.conf ;\
 	cd .. ;\
@@ -162,10 +165,16 @@ versicherungsmonitor.de:
 
 
 set-url: SITEURL=https://aws.versicherungsmonitor.de
-set-url:
+set-url: 
 	@$(WITH_CONFIG); \
 	printf "Setting siteurl to $(SITEURL)\n" >&2 ;\
 	echo 'update wp_options set option_value="$(SITEURL)" where option_name in ("home", "siteurl")' | \
 	docker exec -i $(DB_CONTAINER) \
 		/bin/bash -c 'mysql --defaults-extra-file=<(printf "[client]\npassword='$$MYSQL_PASSWORD'\nuser='$$MYSQL_USER'\n") "'$$MYSQL_DB_NAME'"' ;\
+
+.DEFAULT_GOAL := help
+.PHONY: help
+help: ## Show help
+	@printf "Help: Make Targets --------------------\n" \
+	&& cat $(MAKEFILE_LIST) | grep '\#\#'
 
