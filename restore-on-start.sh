@@ -8,20 +8,20 @@ cd ~/wordpress
 # Restore
 
 run () {
-	echo START --- $(date)
+	echo START RESTORE --- $(date)
 	  make site-down
-	  make get-docroot-from-aws &
-	  ( make get-db-from-aws
-	    make db-up
+	  ( make db-up
+	    make get-db-from-aws
 	    sleep 10
 	    make read-db-from-backup 
 	    make set-url
 	    make db-down ) &
 	  make -f certbot.Makefile renew &
+	  make get-docroot-from-aws &
 	  wait
 	  make site-up
 	  make correct-docroot
-	echo end --- $(date)
+	echo END RESTORE --- $(date)
 
 }
 
